@@ -2,14 +2,15 @@ import os
 
 from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 load_dotenv()
 
 
 def main():
     print("Hello from langchain-course!")
-    print(os.environ.get("OPENAI_API_KEY"))
+    # print(os.environ.get("OPENAI_API_KEY"))
 
     # Note - Mock information that could be pulled from docs or the web
     information = """
@@ -62,7 +63,8 @@ def main():
     summary_prompt_template = PromptTemplate(input_variables={"information"}, template=summary_template)
 
     # Initialize our LLM connection
-    llm = ChatOpenAI(temperature=0, model='gpt-5')
+    # llm = ChatOpenAI(temperature=0, model='gpt-5')
+    llm = ChatOllama(temperature=0, model='gpt-oss:20b')
 
     # LCEL (LangChain Expression Language): Pipe creates a new "runnable" chain, takes input of left into right component.
     # So, it passing the prompt template to our LLM.
