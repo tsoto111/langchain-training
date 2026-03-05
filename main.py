@@ -1,78 +1,61 @@
-import os
-
 from dotenv import load_dotenv
-from langchain_core.prompts import PromptTemplate
-# from langchain_openai import ChatOpenAI
-from langchain_ollama import ChatOllama
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain_core.messages import HumanMessage
+from langchain_openai import ChatOpenAI
+
+'''
+# Tool Method: This was an import utilizing tavily client to create a tool method to trigger a web search 
+#              based off of a prompt using an AI agent.
+from tavily import TavilyClient
+'''
+
+# Tavily langchain client implementation written by the Tavily team!
+from langchain_tavily import TavilySearch
 
 load_dotenv()
 
+'''
+# Tool Method: Initialization of the tavily client
+tavilyClient = TavilyClient()
+'''
+
+search_prompt = 'Search for 3 job postings for an ai engineer using LangChain in Tulsa Oklahoma area on LinkedIn and list their details.'
+
+'''
+# Tool Method: Implementation of an agent tool function which Agent can choose
+#              to use based off of the provided prompt. Note that the comments
+#              in the method are a required part of the tool in order for the 
+#              Agent to reason over using this method or not.
+@tool
+def search(query: str) -> str:
+    \'''
+    Tool that searches over internet
+    Args:
+        query: The query to search for
+    Returns:
+        The search result
+    \'''
+    print(f"Searching for {query}")
+    return tavilyClient.search(query=query)
+'''
+
+llm = ChatOpenAI(model='gpt-5')
+
+'''
+# Tool Method: How we add our search tool as optional methods for the Agent to use.
+tools = [search]
+'''
+
+tools = [TavilySearch()]
+agent = create_agent(model=llm, tools=tools)
 
 def main():
     print("Hello from langchain-course!")
-    # print(os.environ.get("OPENAI_API_KEY"))
+    result = agent.invoke({"messages":HumanMessage(content=search_prompt)})
+    print()
+    print(result['messages'][-1].text)
 
-    # Note - Mock information that could be pulled from docs or the web
-    information = """
-    Elon Reeve Musk (born June 28, 1971) is a businessman and entrepreneur known for his leadership 
-    of Tesla, SpaceX, Twitter, and xAI. Musk has been the wealthiest person in the world since 2025; 
-    as of February 2026, Forbes estimates his net worth to be around US$852 billion.
-
-    Born into a wealthy family in Pretoria, South Africa, Musk emigrated in 1989 to Canada; he has 
-    Canadian citizenship since his mother was born there. He received bachelor's degrees in 1997 
-    from the University of Pennsylvania before moving to California to pursue business ventures. 
-    In 1995, Musk co-founded the software company Zip2. Following its sale in 1999, he co-founded X.com, 
-    an online payment company that later merged to form PayPal, which was acquired by eBay in 2002. 
-    Musk also became an American citizen in 2002.
-
-    In 2002, Musk founded the space technology company SpaceX, becoming its CEO and chief engineer; the 
-    company has since led innovations in reusable rockets and commercial spaceflight. Musk joined the 
-    automaker Tesla as an early investor in 2004 and became its CEO and product architect in 2008; it has 
-    since become a leader in electric vehicles. In 2015, he co-founded OpenAI to advance artificial 
-    intelligence (AI) research, but later left; growing discontent with the organization's direction and 
-    their leadership in the AI boom in the 2020s led him to establish xAI, which became a subsidiary of 
-    SpaceX in 2026. In 2022, he acquired the social network Twitter, implementing significant changes, 
-    and rebranding it as X in 2023. His other businesses include the neurotechnology company Neuralink, 
-    which he co-founded in 2016, and the tunneling company the Boring Company, which he founded in 2017. 
-    In November 2025, a Tesla pay package worth $1 trillion for Musk was approved, which he is to receive 
-    over 10 years if he meets specific goals.
-
-    Musk was the largest donor in the 2024 U.S. presidential election, where he supported Donald Trump. 
-    After Trump was inaugurated as president in early 2025, Musk served as Senior Advisor to the President 
-    and as the de facto head of the Department of Government Efficiency (DOGE). After a public feud with 
-    Trump, Musk left the Trump administration and returned to managing his companies. Musk is a supporter 
-    of global far-right figures, causes, and political parties. His political activities, views, and statements 
-    have made him a polarizing figure. Musk has been criticized for COVID-19 misinformation, promoting conspiracy 
-    theories, and affirming antisemitic, racist, and transphobic comments. His acquisition of Twitter was 
-    controversial due to a subsequent increase in hate speech and the spread of misinformation on the service, 
-    following his pledge to decrease censorship. His role in the second Trump administration attracted public 
-    backlash, particularly in response to DOGE. The emails he sent to Jeffrey Epstein are included in the Epstein 
-    files, which were published between 2025–26 and became a topic of worldwide debate.
-    """
-
-    # Our prompt template using the mock information to give instructions to the LLM.
-    summary_template = """
-    Given the information {information} about a persion I want you to create:
-    1. A short summary.
-    2. Two interesting facts about them.
-    """
-
-    # Class that manages prompt template logic from LangChain. This class seems to be LLM agnostic.
-    # Note that it is defining the injectable variable name for our template. This makes the template
-    # functionable. It is not passing the information in at this point yet.
-    summary_prompt_template = PromptTemplate(input_variables={"information"}, template=summary_template)
-
-    # Initialize our LLM connection
-    # llm = ChatOpenAI(temperature=0, model='gpt-5')
-    llm = ChatOllama(temperature=0, model='gpt-oss:20b')
-
-    # LCEL (LangChain Expression Language): Pipe creates a new "runnable" chain, takes input of left into right component.
-    # So, it passing the prompt template to our LLM.
-    chain = summary_prompt_template | llm
-
-    # Now we invoke our LLM to use our template, take in our information, and process a response.
-    response = chain.invoke(input={'information': information})
-    print(response.content)
 
 if __name__ == "__main__":
     main()
