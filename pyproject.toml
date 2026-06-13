@@ -10,5 +10,7 @@ dependencies = [
     "langchain>=1.2.11",
     "langchain-ollama>=1.0.1",
     "langchain-openai>=1.1.11",
+    "langchain-pinecone>=0.2.13",
+    "langchainhub>=0.1.21",
     "python-dotenv>=1.2.2",
 ]
