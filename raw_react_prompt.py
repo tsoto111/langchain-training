@@ -128,7 +128,6 @@ def run_agent(question: str):
             print(" [Parsing] Error: Could not parse Action/Action Input from LLM Output")
             break
 
-        # TODO: This is where I left off... everything below is old. Following lesson file posted: https://github.com/emarco177/langchain-course/commit/6ad5289209679f1f21ae1f9afc8468b221dec1c1
         tool_name = action_match.group(1).strip()
         tool_input_raw = action_input_match.group(1).strip()
 
